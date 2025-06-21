@@ -9,6 +9,23 @@
    <!-- Google Fonts - Inter -->
    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
    <style>
+       :root {
+           --bg-color: #1e1e2e;
+           --text-color: #fff;
+       }
+       body.light-theme {
+           --bg-color: #ffffff;
+           --text-color: #111827;
+       }
+       body.classic-dark-theme {
+           --bg-color: #121212;
+           --text-color: #f0f0f0;
+       }
+       body {
+           background-color: var(--bg-color);
+           color: var(--text-color);
+           transition: background-color 0.3s, color 0.3s;
+       }
        /* Base styles for all elements */
        * {
            margin: 0;
@@ -25,7 +42,7 @@
                radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.4), transparent 50%),
                linear-gradient(135deg, #1e1e2e 0%, #2d1b69 50%, #11152c 100%);
            min-height: 100vh;
-           color: #fff;
+           color: var(--text-color);
            overflow-x: hidden;
            position: relative;
        }
@@ -38,7 +55,7 @@
            left: 0;
            width: 100%;
            height: 100%;
-           background: url('data:image/svg+xml,<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.03"/></svg>');
+           background: url('data:image/svg+xml,<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="2"/></filter><rect width="400" height="400" filter="url(%23noiseFilter)" opacity="0.07" /></svg>');
            pointer-events: none;
            z-index: 1;
        }
@@ -273,6 +290,39 @@
            z-index: 200; transition: bottom 0.5s ease-in-out;
        }
 
+       /* SETTINGS MODAL */
+       .settings-modal {
+           display: none;
+           position: fixed;
+           z-index: 300;
+           left: 0; top: 0; width: 100vw; height: 100vh;
+           background: rgba(0,0,0,0.45);
+           align-items: center; justify-content: center;
+       }
+       .settings-modal.visible { display: flex; }
+       .settings-content {
+           background: rgba(30,30,46,0.98);
+           color: #fff;
+           padding: 40px 30px 30px 30px;
+           border-radius: 20px;
+           box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+           max-width: 350px;
+           width: 90vw;
+           text-align: center;
+       }
+       .settings-content h2 {
+           margin-bottom: 16px;
+           font-size: 24px; font-weight: 700;
+       }
+       .theme-select {
+           padding: 8px 12px;
+           border-radius: 8px;
+           border: 1px solid #ccc;
+           margin-top: 6px;
+           font-size: 16px;
+           width: 100%;
+           margin-bottom: 12px;
+       }
        @media (max-width: 768px) {
            .container { padding: 20px 15px; }
            .greeting { font-size: 32px; }
@@ -284,6 +334,7 @@
            .chart-header { flex-direction: column; gap: 15px; align-items: flex-start; }
            .chart-container { height: 250px; }
            .nav-actions { justify-content: center; }
+           .settings-content { padding: 25px 10px; }
        }
    </style>
 </head>
@@ -303,27 +354,11 @@
            <div class="nav-actions">
                <a href="#" class="nav-pill">Dashboard</a>
                <a href="#" class="nav-pill">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 9 3.09V3a2 2 0 0 1 4 0v.09c0 .66.34 1.26.88 1.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.45.45-.58 1.1-.33 1.82.24.72.84 1.24 1.51 1.24H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                    <span>Settings</span>
                </a>
            </div>
        </div>
-     <!-- Settings Modal -->
-<div id="settings-modal" class="settings-modal">
-    <div class="settings-content glassmorphic-card" style="padding: 40px; text-align: center;">
-        <h2 class="modal-title">Settings</h2>
-        <button id="disconnect-btn" class="secondary-btn" style="margin-bottom: 20px;">Disconnect POS Terminal</button>
-        <div style="margin: 20px 0; text-align: left;">
-            <label for="theme-select" class="form-label">Choose Theme:</label>
-            <select id="theme-select" class="form-select">
-                <option value="default">Default</option>
-                <option value="light">Light</option>
-                <option value="classic-dark">Classic Dark</option>
-            </select>
-        </div>
-        <button id="close-settings-btn" class="primary-btn">Close</button>
-    </div>
-  </div>
 
        <!-- Agent Display Section (Initially hidden) -->
        <div id="agent-display-section" class="glassmorphic-card agent-display-section" style="display: none;">
@@ -336,7 +371,7 @@
        <div id="metrics-grid" class="metrics-grid" style="display: none;">
             <div class="metric-card glassmorphic-card">
                <div class="metric-title">
-                   <svg class="icon" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/></svg>
+                   <svg class="icon" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1z"></path></svg>
                    Today's Revenue
                </div>
                <div class="metric-value">₦0.00</div>
@@ -344,7 +379,7 @@
            </div>
             <div class="metric-card glassmorphic-card">
                <div class="metric-title">
-                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 001 1h4a1 1 0 100-2h-3V6z" clip-rule="evenodd"></path></svg>
                    Transactions
                </div>
                <div class="metric-value">0</div>
@@ -352,7 +387,7 @@
            </div>
             <div class="metric-card glassmorphic-card">
                <div class="metric-title">
-                  <svg class="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
+                  <svg class="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2h8a2 2 0 012 2v4.586l1.707 1.707a1 1 0 01-1.414 1.414l-1.414-1.414V17a1 1 0 01-1 1H6a1 1 0 01-1-1V11.293l-1.414 1.414a1 1 0 01-1.414-1.414L4 9.586V5zm2 2v10h8V7H6z" clip-rule="evenodd"></path></svg>
                    POS Provider
                </div>
                <div id="pos-provider-display" class="metric-value" style="font-size: 36px;">-</div>
@@ -413,194 +448,22 @@
        </div>
    </div>
 
+   <!-- Settings Modal -->
+   <div id="settings-modal" class="settings-modal">
+       <div class="settings-content">
+           <h2>Settings</h2>
+           <button id="disconnect-btn" class="secondary-btn">Disconnect POS Terminal</button>
+           <div style="margin: 20px 0;">
+               <label for="theme-select">Choose Theme:</label>
+               <select id="theme-select" class="theme-select">
+                   <option value="default">Default</option>
+                   <option value="light">Light</option>
+                   <option value="classic-dark">Classic Dark</option>
+               </select>
+           </div>
+           <button id="close-settings-btn" class="primary-btn">Close</button>
+       </div>
+   </div>
+
    <script>
-       document.addEventListener('DOMContentLoaded', () => {
-           // --- DOM Element Selectors ---
-           const createAgentModal = document.getElementById('create-agent-modal');
-           const connectPosModal = document.getElementById('connect-pos-modal');
-           const agentNameInput = document.getElementById('agent-name-input');
-           const createAgentBtn = document.getElementById('create-agent-btn');
-           const agentDisplaySection = document.getElementById('agent-display-section');
-           const agentTitle = document.getElementById('agent-title');
-           const connectPosBtn = document.getElementById('connect-pos-btn');
-           const posIdInput = document.getElementById('pos-id-input');
-           const posProviderSelect = document.getElementById('pos-provider-select');
-           const connectBtn = document.getElementById('connect-btn');
-           const cancelPosBtn = document.getElementById('cancel-pos-btn');
-           const metricsGrid = document.getElementById('metrics-grid');
-           const chartSection = document.getElementById('chart-section');
-           const posProviderDisplay = document.getElementById('pos-provider-display');
-           const posIdDisplay = document.getElementById('pos-id-display');
-           const toastMessage = document.getElementById('toast-message');
-           
-           let revenueChart = null; 
-
-           // --- Helper Functions ---
-           const showToast = (message) => {
-               toastMessage.textContent = message;
-               toastMessage.style.bottom = '20px';
-               setTimeout(() => {
-                   toastMessage.style.bottom = '-100px';
-               }, 3000);
-           };
-
-           const noDataTextPlugin = {
-               id: 'noDataTextPlugin',
-               afterDraw: (chart) => {
-                   const isDataEmpty = chart.data.datasets.every(ds => 
-                       ds.data.every(point => point === 0 || point === null || point === undefined)
-                   );
-
-                   if (isDataEmpty) {
-                       const { ctx, width, height } = chart;
-                       ctx.save();
-                       ctx.textAlign = 'center';
-                       ctx.textBaseline = 'middle';
-                       ctx.font = 600 20px 'Inter', sans-serif";
-                       ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                       ctx.fillText('No data yet', width / 2, height / 2);
-                       ctx.restore();
-                   }
-               }
-           };
-           
-           const drawEmptyChart = () => {
-               const ctx = document.getElementById('revenueChart').getContext('2d');
-               if (revenueChart) {
-                   revenueChart.destroy();
-               }
-               revenueChart = new Chart(ctx, {
-                   type: 'bar',
-                   data: {
-                       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                       datasets: [{
-                           label: 'Revenue',
-                           data: [0, 0, 0, 0, 0, 0, 0],
-                           backgroundColor: 'rgba(120, 119, 198, 0.5)',
-                           borderColor: 'rgba(120, 119, 198, 1)',
-                           borderWidth: 1.5,
-                           borderRadius: 4,
-                       }]
-                   },
-                   options: {
-                       responsive: true,
-                       maintainAspectRatio: false,
-                       plugins: { legend: { display: false } },
-                       scales: {
-                           y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'rgba(255, 255, 255, 0.7)' } },
-                           x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: 'rgba(255, 255, 255, 0.7)' } }
-                       }
-                   },
-                   plugins: [noDataTextPlugin]
-               });
-           };
-
-           // --- Main Application Logic ---
-           const initializeDashboard = () => {
-               const agentName = localStorage.getItem('mypos_agent');
-               const posId = localStorage.getItem('mypos_posId');
-               const posProvider = localStorage.getItem('mypos_provider');
-
-               if (!agentName) {
-                   createAgentModal.classList.add('visible');
-               } else {
-                   agentTitle.textContent = `Agent: ${agentName}`;
-                   agentDisplaySection.style.display = 'flex';
-                   if (posId && posProvider) {
-                       connectPosBtn.textContent = '✅ POS Connected';
-                       connectPosBtn.disabled = true;
-                       metricsGrid.style.display = 'grid';
-                       chartSection.style.display = 'block';
-                       posProviderDisplay.textContent = posProvider;
-                       posIdDisplay.textContent = posId;
-                       drawEmptyChart();
-                   }
-               }
-           };
-
-           // --- Event Listeners ---
-           createAgentBtn.addEventListener('click', () => {
-               const name = agentNameInput.value.trim();
-               if (name === '') {
-                   alert('Please enter an agent name.');
-                   return;
-               }
-               localStorage.setItem('mypos_agent', name);
-               createAgentModal.classList.remove('visible');
-               agentTitle.textContent = `Agent: ${name}`;
-               agentDisplaySection.style.display = 'flex';
-           });
-
-           connectPosBtn.addEventListener('click', () => {
-               if(connectPosBtn.disabled) return;
-               connectPosModal.classList.add('visible');
-           });
-
-           cancelPosBtn.addEventListener('click', () => {
-               connectPosModal.classList.remove('visible');
-           });
-
-           connectBtn.addEventListener('click', () => {
-               const posId = posIdInput.value.trim();
-               const provider = posProviderSelect.value;
-               if (posId === '' || provider === '') {
-                   alert('Please fill in both POS ID and provider.');
-                   return;
-               }
-               localStorage.setItem('mypos_posId', posId);
-localStorage.setItem('mypos_provider', provider);
-connectPosModal.classList.remove('visible');
-showToast('✅ Connected');
-connectPosBtn.textContent = '✅ POS Connected';
-connectPosBtn.disabled = true;
-metricsGrid.style.display = 'grid';
-chartSection.style.display = 'block';
-posProviderDisplay.textContent = provider;
-posIdDisplay.textContent = posId;
-drawEmptyChart();
-
-document.addEventListener('DOMContentLoaded', () => {
-    initializeDashboard();
-
-    // SETTINGS LOGIC
-    const settingsModal = document.getElementById('settings-modal');
-    const disconnectBtn = document.getElementById('disconnect-btn');
-    const closeSettingsBtn = document.getElementById('close-settings-btn');
-    const themeSelect = document.getElementById('theme-select');
-
-    document.querySelector('.nav-pill:nth-of-type(2)').addEventListener('click', () => {
-        settingsModal.classList.add('visible');
-    });
-
-    closeSettingsBtn.addEventListener('click', () => {
-        settingsModal.classList.remove('visible');
-    });
-
-    disconnectBtn.addEventListener('click', () => {
-        localStorage.removeItem('mypos_posId');
-        localStorage.removeItem('mypos_provider');
-        connectPosBtn.textContent = 'Connect POS Terminal';
-        connectPosBtn.disabled = false;
-        metricsGrid.style.display = 'none';
-        chartSection.style.display = 'none';
-        posProviderDisplay.textContent = '-';
-        posIdDisplay.textContent = '-';
-        settingsModal.classList.remove('visible');
-        showToast('POS Terminal disconnected');
-    });
-
-    themeSelect.addEventListener('change', () => {
-        const theme = themeSelect.value;
-        document.body.classList.remove('light-theme', 'classic-dark-theme');
-        if (theme === 'light') document.body.classList.add('light-theme');
-        if (theme === 'classic-dark') document.body.classList.add('classic-dark-theme');
-        localStorage.setItem('mypos_theme', theme);
-    });
-
-    const savedTheme = localStorage.getItem('mypos_theme');
-    if (savedTheme) {
-        themeSelect.value = savedTheme;
-        if (savedTheme === 'light') document.body.classList.add('light-theme');
-        if (savedTheme === 'classic-dark') document.body.classList.add('classic-dark-theme');
-    }
-});
+       document.addEventL

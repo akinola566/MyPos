@@ -548,20 +548,59 @@
                    return;
                }
                localStorage.setItem('mypos_posId', posId);
-               localStorage.setItem('mypos_provider', provider);
-               connectPosModal.classList.remove('visible');
-               showToast('✅ Connected');
-               connectPosBtn.textContent = '✅ POS Connected';
-               connectPosBtn.disabled = true;
-               metricsGrid.style.display = 'grid';
-               chartSection.style.display = 'block';
-               posProviderDisplay.textContent = provider;
-               posIdDisplay.textContent = posId;
-               drawEmptyChart();
-           });
+localStorage.setItem('mypos_provider', provider);
+connectPosModal.classList.remove('visible');
+showToast('✅ Connected');
+connectPosBtn.textContent = '✅ POS Connected';
+connectPosBtn.disabled = true;
+metricsGrid.style.display = 'grid';
+chartSection.style.display = 'block';
+posProviderDisplay.textContent = provider;
+posIdDisplay.textContent = posId;
+drawEmptyChart();
 
-           initializeDashboard();
-       });
-   </script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDashboard();
+
+    // SETTINGS LOGIC
+    const settingsModal = document.getElementById('settings-modal');
+    const disconnectBtn = document.getElementById('disconnect-btn');
+    const closeSettingsBtn = document.getElementById('close-settings-btn');
+    const themeSelect = document.getElementById('theme-select');
+
+    document.querySelector('.nav-pill:nth-of-type(2)').addEventListener('click', () => {
+        settingsModal.classList.add('visible');
+    });
+
+    closeSettingsBtn.addEventListener('click', () => {
+        settingsModal.classList.remove('visible');
+    });
+
+    disconnectBtn.addEventListener('click', () => {
+        localStorage.removeItem('mypos_posId');
+        localStorage.removeItem('mypos_provider');
+        connectPosBtn.textContent = 'Connect POS Terminal';
+        connectPosBtn.disabled = false;
+        metricsGrid.style.display = 'none';
+        chartSection.style.display = 'none';
+        posProviderDisplay.textContent = '-';
+        posIdDisplay.textContent = '-';
+        settingsModal.classList.remove('visible');
+        showToast('POS Terminal disconnected');
+    });
+
+    themeSelect.addEventListener('change', () => {
+        const theme = themeSelect.value;
+        document.body.classList.remove('light-theme', 'classic-dark-theme');
+        if (theme === 'light') document.body.classList.add('light-theme');
+        if (theme === 'classic-dark') document.body.classList.add('classic-dark-theme');
+        localStorage.setItem('mypos_theme', theme);
+    });
+
+    const savedTheme = localStorage.getItem('mypos_theme');
+    if (savedTheme) {
+        themeSelect.value = savedTheme;
+        if (savedTheme === 'light') document.body.classList.add('light-theme');
+        if (savedTheme === 'classic-dark') document.body.classList.add('classic-dark-theme');
+    }
+});
